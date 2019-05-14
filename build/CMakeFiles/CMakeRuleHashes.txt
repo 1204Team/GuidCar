@@ -1,0 +1,7 @@
+# Hashes of file build rules.
+622e7919224e4b5f95747c622936030a CMakeFiles/clean_test_results
+24a8dc52cdb6fca4e804dfb79fb933f3 serial/tests/CMakeFiles/_run_tests_serial_gtest_serial-test
+c19b486b434cd4458772bc86f1e818d2 serial/tests/CMakeFiles/_run_tests_serial_gtest_serial-test-timer
+de7a596bffec18521ac9cdb916a41cbf serial/tests/CMakeFiles/clean_test_results_serial
+24a8dc52cdb6fca4e804dfb79fb933f3 serial/tests/CMakeFiles/run_tests_serial_gtest_serial-test
+c19b486b434cd4458772bc86f1e818d2 serial/tests/CMakeFiles/run_tests_serial_gtest_serial-test-timer

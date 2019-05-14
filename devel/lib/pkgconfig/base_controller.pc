@@ -1,0 +1,8 @@
+prefix=/home/ysf/catkin_ws/devel
+
+Name: base_controller
+Description: Description of base_controller
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/ysf/catkin_ws/devel/lib 
+Requires: roscpp
