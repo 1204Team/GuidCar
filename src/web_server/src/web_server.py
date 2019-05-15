@@ -13,14 +13,32 @@ position_x=0.0
 position_y=0.0
 
 
+'''
+
+地址                      方法      说明                           请求                                             返回
+
+"/"                       GET       连通测试                       无                                               string 
+"/get_position"           GET       监听请求返回小车当前位置       无                                               {"status":string,"position_x":float,"position_y":float}
+"/send_goods_info"        POST      接收目标商品信息               {"position_x":float,"position_y":float}          {"status":string}
+"/car_test"               GET       小车前进并直角转弯测试         无                                               {"status":string}
+
+'''
+
+
 @app.route("/", methods=['GET'])
 def hello():
     return "hello world" 
 
 
 @app.route("/get_position", methods=['GET'])
-def get_position():
-    result={"position_x":position_x,"position_y":position_y}
+def send_position():
+    result={"status":"Succeed!","position_x":position_x,"position_y":position_y}
+    return jsonify(result)
+
+
+@app.route("/send_goods_info",methods=['POST'])
+def get_goods_info():
+    result={"status":"Succeed!"}
     return jsonify(result)
 
 
@@ -47,8 +65,11 @@ def car_test():
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
     pub.publish(twist)
-    return "Succeed!"
+    result={"status":"Succeed!"}
+    return jsonify(result)
 
+
+#订阅里程记的回调函数
 def callback(odom):   
     print "we got callback\n"
     print odom.pose.pose.position
@@ -59,19 +80,13 @@ def callback(odom):
     position_x=odom.pose.pose.position.x
     position_y=odom.pose.pose.position.y
 
-'''
-def ros_init():
-    #    rospy.init_node('Web_server')
-    #    sub = rospy.Subscriber('odom',Odometry,callback)
-    #    while(1):
-        server_start()
-        #    rospy.spin()
-        '''
+
 
 sub = rospy.Subscriber('odom',Odometry,callback)
 print "we got odom\n"
 pub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
 print "we got cmd_vel\n"
+
 
 if __name__ == "__main__":
     #    ros_init()
