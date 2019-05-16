@@ -9,8 +9,9 @@ from nav_msgs.msg import Odometry
 
 app = Flask(__name__)
 
-position_x=0.0
-position_y=0.0
+Position_x=0.0
+Position_y=0.0
+Guid_status=False 
 
 
 '''
@@ -18,7 +19,7 @@ position_y=0.0
 地址                      方法      说明                           请求                                             返回
 
 "/"                       GET       连通测试                       无                                               string 
-"/get_position"           GET       监听请求返回小车当前位置       无                                               {"status":string,"position_x":float,"position_y":float}
+"/get_position"           GET       监听请求返回小车当前位置       无                                               {"status":string,"position_x":float,"position_y":float,"guid_status":bool}
 "/send_goods_info"        POST      接收目标商品信息               {"position_x":float,"position_y":float}          {"status":string}
 "/car_test"               GET       小车前进并直角转弯测试         无                                               {"status":string}
 
@@ -32,12 +33,13 @@ def hello():
 
 @app.route("/get_position", methods=['GET'])
 def send_position():
-    result={"status":"Succeed!","position_x":position_x,"position_y":position_y}
+    result={"status":"Succeed!","position_x":Position_x,"position_y":Position_y,"guid_status":Guid_status}
     return jsonify(result)
 
 
 @app.route("/send_goods_info",methods=['POST'])
 def get_goods_info():
+    global Guid_status=True 
     result={"status":"Succeed!"}
     return jsonify(result)
 
@@ -49,13 +51,13 @@ def car_test():
 
     twist.linear.x = 0.21; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
-    pub.publish(twist)
+    Pub.publish(twist)
 
     time.sleep(5)
 
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0.56428428648
-    pub.publish(twist)
+    Pub.publish(twist)
 
     time.sleep(2.2)
     twist.linear.x = 0.21; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
@@ -64,8 +66,10 @@ def car_test():
     time.sleep(2)
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
-    pub.publish(twist)
+    Pub.publish(twist)
+   
     result={"status":"Succeed!"}
+   
     return jsonify(result)
 
 
@@ -74,17 +78,15 @@ def callback(odom):
     print "we got callback\n"
     print odom.pose.pose.position
 
-    global position_x 
-    global position_y 
-
-    position_x=odom.pose.pose.position.x
-    position_y=odom.pose.pose.position.y
+    global Position_x=odom.pose.pose.position.x
+    global Position_y=odom.pose.pose.position.y
 
 
 
-sub = rospy.Subscriber('odom',Odometry,callback)
+
+Sub = rospy.Subscriber('odom',Odometry,callback)
 print "we got odom\n"
-pub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
+Pub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
 print "we got cmd_vel\n"
 
 
