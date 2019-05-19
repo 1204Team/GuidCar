@@ -62,10 +62,13 @@ def car_test():
     Pub.publish(twist)
 
     time.sleep(2.2)
+    
     twist.linear.x = 0.21; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
-    pub.publish(twist)
+    Pub.publish(twist)
+    
     time.sleep(2)
+
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
     Pub.publish(twist)
@@ -84,7 +87,7 @@ def callback(odom):
     global Position_y
     
     Position_x=odom.pose.pose.position.x
-    Position_y=odom.pose.pose.position.x
+    Position_y=odom.pose.pose.position.y
 
 
 
