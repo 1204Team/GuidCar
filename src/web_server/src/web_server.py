@@ -1,3 +1,4 @@
+#coding=utf-8
 #! /usr/bin/env python
 from flask import Flask,jsonify
 
@@ -39,7 +40,8 @@ def send_position():
 
 @app.route("/send_goods_info",methods=['POST'])
 def get_goods_info():
-    global Guid_status=True 
+    global Guid_status
+    Guid_status=True 
     result={"status":"Succeed!"}
     return jsonify(result)
 
@@ -78,9 +80,11 @@ def callback(odom):
     print "we got callback\n"
     print odom.pose.pose.position
 
-    global Position_x=odom.pose.pose.position.x
-    global Position_y=odom.pose.pose.position.y
-
+    global Position_x
+    global Position_y
+    
+    Position_x=odom.pose.pose.position.x
+    Position_y=odom.pose.pose.position.x
 
 
 
