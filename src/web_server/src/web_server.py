@@ -61,14 +61,11 @@ def car_test():
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0.56428428648
     Pub.publish(twist)
 
-    time.sleep(2.2)
-    
+    time.sleep(2)
     twist.linear.x = 0.21; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
     Pub.publish(twist)
-    
-    time.sleep(2)
-
+    time.sleep(2.05)
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
     Pub.publish(twist)
