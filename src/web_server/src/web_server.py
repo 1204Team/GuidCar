@@ -48,6 +48,9 @@ def get_goods_info():
 
 @app.route("/car_test", methods=['GET'])
 def car_test():
+    global Guid_status
+    Guid_status=True 
+   
     #    pub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)
     twist = Twist()                                                                                                                                                                 
 
@@ -72,6 +75,8 @@ def car_test():
    
     result={"status":"Succeed!"}
    
+    Guid_status=False 
+    
     return jsonify(result)
 
 
