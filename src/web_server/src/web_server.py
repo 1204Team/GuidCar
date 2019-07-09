@@ -23,6 +23,7 @@ Guid_status=False
 "/get_position"           GET       监听请求返回小车当前位置       无                                               {"status":string,"position_x":float,"position_y":float,"guid_status":bool}
 "/send_goods_info"        POST      接收目标商品信息               {"position_x":float,"position_y":float}          {"status":string}
 "/car_test"               GET       小车前进并直角转弯测试         无                                               {"status":string}
+"/controller"             POST      小车控制                       {"x":int,"y":int}                                {"status":string}
 
 '''
 
@@ -53,27 +54,41 @@ def car_test():
 
     twist.linear.x = 0.21; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
-    Pub.publish(twist)
+    CmdVelPub.publish(twist)
 
     time.sleep(5)
 
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0.56428428648
-    Pub.publish(twist)
+    CmdVelPub.publish(twist)
 
     time.sleep(2)
     twist.linear.x = 0.21; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
-    Pub.publish(twist)
+    CmdVelPub.publish(twist)
+
     time.sleep(2.05)
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
-    Pub.publish(twist)
-   
+    CmdVelPub.publish(twist)
+
     result={"status":"Succeed!"}
-   
+
     return jsonify(result)
 
+
+@app.route("/controller", methods=['POST'])
+def controller():
+    x = request.form['x']
+    y=request.form['y']
+    twist = Twist()
+
+    twist.linear.x = x; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
+    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = y
+    CmdVelPub.publish(twist)
+
+    result={"status":"Succeed!"}
+    return jsonify(result)
 
 #订阅里程记的回调函数
 def callback(odom):   
@@ -82,15 +97,15 @@ def callback(odom):
 
     global Position_x
     global Position_y
-    
+
     Position_x=odom.pose.pose.position.x
     Position_y=odom.pose.pose.position.y
 
 
 
-Sub = rospy.Subscriber('odom',Odometry,callback)
+OdomSub = rospy.Subscriber('odom',Odometry,callback)
 print "we got odom\n"
-Pub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
+CmdVelPub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
 print "we got cmd_vel\n"
 
 
