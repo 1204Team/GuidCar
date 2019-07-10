@@ -1,12 +1,12 @@
 #coding=utf-8
 #! /usr/bin/env python
-from flask import Flask,jsonify
 
 import threading
 import time
 import rospy
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry 
+from flask import Flask,jsonify,json,request 
 
 app = Flask(__name__)
 
@@ -84,16 +84,18 @@ def car_test():
 
 @app.route("/controller", methods=['POST'])
 def controller():
-'''
-    x = request.form['x']
-    y = request.form['y']
-    twist = Twist()
+    
+    data = json.loads(request.get_data())
+    #    print(data)
+    x = data["x"]
+    y = data["y"]
 
     twist.linear.x = x; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = y
     CmdVelPub.publish(twist)
-'''
-    result={"status":"Succeed!"}
+    
+    #    result={"status":"Succeed!"}
+    result = {"x":x,"y":y}
     return jsonify(result)
 
 
