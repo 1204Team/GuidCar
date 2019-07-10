@@ -84,16 +84,18 @@ def car_test():
 
 @app.route("/controller", methods=['POST'])
 def controller():
+'''
     x = request.form['x']
-    y=request.form['y']
+    y = request.form['y']
     twist = Twist()
 
     twist.linear.x = x; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = y
     CmdVelPub.publish(twist)
-
+'''
     result={"status":"Succeed!"}
     return jsonify(result)
+
 
 
 #订阅里程记的回调函数
