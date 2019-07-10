@@ -108,8 +108,18 @@ def controller():
 
 def move_base_client(target_x,target_y):
     move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
+    
+    rospy.loginfo("Waiting for move_base action server...")
+    
+    # Wait 60 seconds for the action server to become available
+    # 等待move_base服务器建立
+    move_base.wait_for_server(rospy.Duration(60))
+
+    rospy.loginfo("Connected to move base server")
+    rospy.loginfo("Starting navigation test")
 
     goal = MoveBaseGoal()
+    
     goal.target_pose.header.frame_id = 'base_link'
     goal.target_pose.header.stamp = rospy.Time.now()
     goal.target_pose.pose.position.x = target_x
@@ -136,7 +146,7 @@ def move_base_client(target_x,target_y):
             rospy.loginfo("Goal succeeded!")
 
 
-
+"""
 #订阅里程记的回调函数
 def callback(odom):   
     print "we got callback\n"
@@ -152,6 +162,7 @@ def callback(odom):
 
 OdomSub = rospy.Subscriber('odom',Odometry,callback)
 print "we got odom\n"
+"""
 CmdVelPub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
 print "we got cmd_vel\n"
 
@@ -161,7 +172,6 @@ if __name__ == "__main__":
     rospy.init_node('Web_server')
     print "we got Web_server\n"
     #    server_start()
-
     print "we are online"
     #    app.debug = True
     app.run(host = '0.0.0.0',port = 8080)
