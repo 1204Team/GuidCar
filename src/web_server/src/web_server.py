@@ -4,8 +4,10 @@
 import threading
 import time
 import rospy
+import actionlib
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry 
+from nav_msgs.msg import Odometry
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from flask import Flask,jsonify,json,request 
 
 app = Flask(__name__)
@@ -21,9 +23,9 @@ Guid_status=False
 
 "/"                       GET       连通测试                       无                                               string 
 "/get_position"           GET       监听请求返回小车当前位置       无                                               {"status":string,"position_x":float,"position_y":float,"guid_status":bool}
-"/send_goods_info"        POST      接收目标商品信息               {"position_x":float,"position_y":float}          {"status":string}
+"/send_goods_info"        POST      接收目标商品信息               {"position_x":float,"position_y":float}          {"status":string,"position_x":float,"position_y":float}
 "/car_test"               GET       小车前进并直角转弯测试         无                                               {"status":string}
-"/controller"             POST      小车控制                       {"x":int,"y":int}                                {"status":string}
+"/controller"             POST      小车控制                       {"x":int,"y":int}                                {"status":string,"x":int,"y":int}
 
 '''
 
@@ -35,7 +37,7 @@ def hello():
 
 @app.route("/get_position", methods=['GET'])
 def send_position():
-    result={"status":"Succeed!","position_x":Position_x,"position_y":Position_y,"guid_status":Guid_status}
+    result = {"status":"Succeed!","position_x":Position_x,"position_y":Position_y,"guid_status":Guid_status}
     return jsonify(result)
 
 
@@ -43,7 +45,14 @@ def send_position():
 def get_goods_info():
     global Guid_status
     Guid_status=True 
-    result={"status":"Succeed!"}
+    
+    data = json.loads(request.get_data())
+    target_x = data['position_x']
+    target_y = data['position_y']
+    
+    move_base_client(target_x,target_y)
+
+    result = {"status":"Succeed!","position_x":target_x,"position_y":target_y}
     return jsonify(result)
 
 
@@ -75,16 +84,15 @@ def car_test():
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
     CmdVelPub.publish(twist)
 
-    result={"status":"Succeed!"}
+    result = {"status":"Succeed!"}
    
-    Guid_status=False 
+    Guid_status = False 
    
     return jsonify(result)
 
 
 @app.route("/controller", methods=['POST'])
 def controller():
-    
     data = json.loads(request.get_data())
     #    print(data)
     x = data["x"]
@@ -94,9 +102,38 @@ def controller():
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = y
     CmdVelPub.publish(twist)
     
-    #    result={"status":"Succeed!"}
-    result = {"x":x,"y":y}
+    result = {"status":"Succeed!"}
     return jsonify(result)
+
+
+def move_base_client(target_x,target_y):
+    move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
+
+    goal = MoveBaseGoal()
+    goal.target_pose.header.frame_id = 'base_link'
+    goal.target_pose.header.stamp = rospy.Time.now()
+    goal.target_pose.pose.position.x = target_x
+    goal.target_pose.pose.position.y = target_y
+    goal.target_pose.pose.orientation.w = 1.0
+
+    # Send the goal pose to the MoveBaseAction server
+    # 把目标位置发送给MoveBaseAction的服务器
+    move_base.send_goal(goal)
+
+    # Allow 1 minute to get there
+    # 设定1分钟的时间限制
+    finished_within_time = move_base.wait_for_result(rospy.Duration(60)) 
+
+    # If we don't get there in time, abort the goal
+    # 如果一分钟之内没有到达，放弃目标
+    if not finished_within_time:
+        move_base.cancel_goal()
+        rospy.loginfo("Timed out achieving goal")
+    else:
+        # We made it!
+        state = move_base.get_state()
+        if state == GoalStatus.SUCCEEDED:
+            rospy.loginfo("Goal succeeded!")
 
 
 
@@ -108,8 +145,8 @@ def callback(odom):
     global Position_x
     global Position_y
 
-    Position_x=odom.pose.pose.position.x
-    Position_y=odom.pose.pose.position.y
+    Position_x = odom.pose.pose.position.x
+    Position_y = odom.pose.pose.position.y
 
 
 
@@ -127,7 +164,7 @@ if __name__ == "__main__":
 
     print "we are online"
     #    app.debug = True
-    app.run(host='0.0.0.0',port =8080)
+    app.run(host = '0.0.0.0',port = 8080)
     #    app.run()
 
 #    print "aaa\n"
