@@ -76,13 +76,9 @@ def car_test():
     CmdVelPub.publish(twist)
 
     result={"status":"Succeed!"}
-<<<<<<< HEAD
-
-=======
    
     Guid_status=False 
-    
->>>>>>> c30677ebeb85d6b53e5d96ede60c627364091b54
+   
     return jsonify(result)
 
 
@@ -98,6 +94,7 @@ def controller():
 
     result={"status":"Succeed!"}
     return jsonify(result)
+
 
 #订阅里程记的回调函数
 def callback(odom):   
