@@ -93,19 +93,21 @@ def car_test():
 
 @app.route("/controller", methods=['POST'])
 def controller():
+    twist = Twist()                                                                                                                                                                 
     data = json.loads(request.get_data())
     #    print(data)
     x = data["x"]
     y = data["y"]
-
+    
     twist.linear.x = x; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = y
     CmdVelPub.publish(twist)
     
-    result = {"status":"Succeed!"}
+    result = {"status":"Succeed!","x":x,"y":y}
     return jsonify(result)
 
 
+#向movw_base发送目标坐标
 def move_base_client(target_x,target_y):
     move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
     
@@ -134,19 +136,8 @@ def move_base_client(target_x,target_y):
     # 设定1分钟的时间限制
     finished_within_time = move_base.wait_for_result(rospy.Duration(60)) 
 
-    # If we don't get there in time, abort the goal
-    # 如果一分钟之内没有到达，放弃目标
-    if not finished_within_time:
-        move_base.cancel_goal()
-        rospy.loginfo("Timed out achieving goal")
-    else:
-        # We made it!
-        state = move_base.get_state()
-        if state == GoalStatus.SUCCEEDED:
-            rospy.loginfo("Goal succeeded!")
+ 
 
-
-"""
 #订阅里程记的回调函数
 def callback(odom):   
     print "we got callback\n"
@@ -162,7 +153,7 @@ def callback(odom):
 
 OdomSub = rospy.Subscriber('odom',Odometry,callback)
 print "we got odom\n"
-"""
+
 CmdVelPub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
 print "we got cmd_vel\n"
 
