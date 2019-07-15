@@ -126,18 +126,26 @@ def controller():
     return jsonify(result)
 
 
-#TODO
 @app.route("/start_following", methods=['POST'])
 def start_following():
+    twist = Twist()  
 
+    twist.linear.x = 540; twist.linear.y = 320; twist.linear.z = 0;                                                                                                                                       
+    twist.angular.x = 120; twist.angular.y = 150; twist.angular.z = 0
+    OnMousePub.publish(twist)
+    
     result = {"status":"Succeed!"}
     return jsonify(result)
 
 
-#TODO
 @app.route("/stop_following", methods=['GET'])
-def start_following():
+def stop_following():
+    twist = Twist()  
 
+    twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
+    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = -1
+    OnMousePub.publish(twist)
+    
     result = {"status":"Succeed!"}
     return jsonify(result)
 
@@ -195,6 +203,8 @@ print "we got cmd_vel\n"
 CancelGoalPub = rospy.Publisher('move_base/cancel',GoalID,queue_size = 1)     
 print "we got cancel_goal\n"
 
+OnMousePub = rospy.Publisher('OnMouse',Twist,queue_size = 1)     
+print "we got OnMouse\n"
 
 if __name__ == "__main__":
     #    ros_init()
