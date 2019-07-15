@@ -8,6 +8,7 @@ import actionlib
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from actionlib_msgs.msg import GoalID
 from flask import Flask,jsonify,json,request 
 
 app = Flask(__name__)
@@ -19,13 +20,16 @@ Guid_status=False
 
 '''
 
-地址                      方法      说明                           请求                                             返回
+地址                      方法      说明                           请求                                                   返回
 
-"/"                       GET       连通测试                       无                                               string 
-"/get_position"           GET       监听请求返回小车当前位置       无                                               {"status":string,"position_x":float,"position_y":float,"guid_status":bool}
-"/send_goods_info"        POST      接收目标商品信息               {"position_x":float,"position_y":float}          {"status":string,"position_x":float,"position_y":float}
-"/car_test"               GET       小车前进并直角转弯测试         无                                               {"status":string}
-"/controller"             POST      小车控制                       {"x":int,"y":int}                                {"status":string,"x":int,"y":int}
+"/"                       GET       连通测试                       无                                                     string 
+"/get_position"           GET       监听请求返回小车当前位置       无                                                     {"status":string,"position_x":float,"position_y":float,"guid_status":bool}
+"/send_goods_info"        POST      接收目标商品信息               {"position_x":float,"position_y":float}                {"status":string,"position_x":float,"position_y":float}
+"/stop_guid"              GET       停止当前导航                   无                                                     {"status":string}
+"/car_test"               GET       小车前进并直角转弯测试         无                                                     {"status":string}
+"/controller"             POST      小车控制                       {"x":float,"y":float}                                  {"status":string,"x":float,"y":float}
+"/start_following"        POST      获取用户端选框位置             {"x":float,"y:float","width":float,"heigh:float"}      {"status":string}
+"/stop_following"         GET       停止人体跟踪                   无                                                     {"status":string}
 
 '''
 
@@ -41,10 +45,10 @@ def send_position():
     return jsonify(result)
 
 
-@app.route("/send_goods_info",methods=['POST'])
+@app.route("/send_goods_info", methods=['POST'])
 def get_goods_info():
     global Guid_status
-    Guid_status=True 
+    Guid_status = True 
     
     data = json.loads(request.get_data())
     target_x = data['position_x']
@@ -53,13 +57,28 @@ def get_goods_info():
     move_base_client(target_x,target_y)
 
     result = {"status":"Succeed!","position_x":target_x,"position_y":target_y}
+    
+    Guid_status = False 
+
+    return jsonify(result)
+
+
+@app.route("/stop_guid", methods=['GET'])
+def stop_guid():
+    global Guid_status
+    Guid_status = False 
+    
+    goal = GoalID()     
+    CancelGoalPub.publish(goal)
+
+    result = {"status":"Succeed!"}
     return jsonify(result)
 
 
 @app.route("/car_test", methods=['GET'])
 def car_test():
     global Guid_status
-    Guid_status=True 
+    Guid_status = True 
    
     #    pub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)
     twist = Twist()                                                                                                                                                                 
@@ -104,6 +123,22 @@ def controller():
     CmdVelPub.publish(twist)
     
     result = {"status":"Succeed!","x":x,"y":y}
+    return jsonify(result)
+
+
+#TODO
+@app.route("/start_following", methods=['POST'])
+def start_following():
+
+    result = {"status":"Succeed!"}
+    return jsonify(result)
+
+
+#TODO
+@app.route("/stop_following", methods=['GET'])
+def start_following():
+
+    result = {"status":"Succeed!"}
     return jsonify(result)
 
 
@@ -156,6 +191,9 @@ print "we got odom\n"
 
 CmdVelPub = rospy.Publisher('cmd_vel',Twist,queue_size = 1)     
 print "we got cmd_vel\n"
+
+CancelGoalPub = rospy.Publisher('move_base/cancel',GoalID,queue_size = 1)     
+print "we got cancel_goal\n"
 
 
 if __name__ == "__main__":
