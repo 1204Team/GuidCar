@@ -146,6 +146,10 @@ def stop_following():
     twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = -1
     OnMousePub.publish(twist)
     
+    twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
+    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
+    CmdVelPub.publish(twist)
+    
     result = {"status":"Succeed!"}
     return jsonify(result)
 
