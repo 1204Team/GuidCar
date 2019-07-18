@@ -142,8 +142,8 @@ def start_following():
 def stop_following():
     twist = Twist()  
 
-    twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
-    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = -1
+    twist.linear.x = 1; twist.linear.y = 1; twist.linear.z = 0;                                                                                                                                       
+    twist.angular.x = 1; twist.angular.y = 1; twist.angular.z = -1
     OnMousePub.publish(twist)
     
     twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0;                                                                                                                                       
@@ -169,7 +169,7 @@ def move_base_client(target_x,target_y):
 
     goal = MoveBaseGoal()
     
-    goal.target_pose.header.frame_id = 'base_link'
+    goal.target_pose.header.frame_id = 'odom'
     goal.target_pose.header.stamp = rospy.Time.now()
     goal.target_pose.pose.position.x = target_x
     goal.target_pose.pose.position.y = target_y
